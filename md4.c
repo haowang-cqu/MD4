@@ -82,16 +82,17 @@ void md4_init(struct md4_ctx *ctx) {
  */
 void md4_update(struct md4_ctx *ctx, const void *data, unsigned long len) {
     unsigned char * byte_data = (unsigned char *)data;
+    unsigned char * byte_block = (unsigned char *)ctx->block;
     // block中空余的字节数
     const u32 avail = sizeof(ctx->block) - (ctx->byte_count & 0x3f);
     ctx->byte_count += len;
     // data不足以装满一个block则存入后直接返回
     if (avail > len) {
-        memcpy(ctx->block + (sizeof(ctx->block) - avail), byte_data, len);
+        memcpy(byte_block + (sizeof(ctx->block) - avail), byte_data, len);
         return;
     }
     // 装满一个block后更新状态寄存器
-    memcpy(ctx->block + (sizeof(ctx->block) - avail), byte_data, avail);
+    memcpy(byte_block + (sizeof(ctx->block) - avail), byte_data, avail);
     // TODO
     md4_transform(ctx->hash, ctx->block);
     byte_data += avail;
